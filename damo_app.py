@@ -85,7 +85,8 @@ def build_excel(bores):
 
     header_fill = PatternFill(start_color="FFD966", end_color="FFD966", fill_type="solid")
     title_fill = PatternFill(start_color="92D050", end_color="92D050", fill_type="solid")
-
+	number_fill = PatternFill(start_color="ADD8E6", end_color="ADD8E6",fill_type="solid")
+    
     for bore in bores:
         rods = rods_from_footage(bore["footage"])
         depths = generate_br_depths(rods, *bore["depth_range"], bore["lc"]) if bore["type"]=="BR" else generate_pl_depths(rods, bore["depth_flat"])
@@ -93,17 +94,35 @@ def build_excel(bores):
 
         for page_start in range(0, rods, 74):
             ws = wb.create_sheet(f"{bore['name']}_{page_start//74+1}")
+            
+            ws.column_dimensions‎[‎'A'].width = 6
+            ws.column_dimensions['F'].width = 6
 
-            ws.merge_cells("A1:H1")
+            ws.merge_cells("A1:J1")
             ws["A1"] = "DAMO Bore Log"
             ws["A1"].font = Font(bold=True, size=14)
             ws["A1"].fill = title_fill
             ws["A1"].alignment = Alignment(horizontal="center")
 
-            headers = ["Location Description","EOP","Depth (ft)","Depth (in)"]
-            for col in range(4):
-                ws.cell(row=3, column=col+1, value=headers[col]).fill = header_fill
-                ws.cell(row=3, column=col+5, value=headers[col]).fill = header_fill
+            headers = ["#","Location Description","EOP","Depth (ft)","Depth (in)"]
+            
+            for col in range(5):
+                
+                # LEFT SIDE (A-E)
+                cell_left = ws.cell(row=3, column=col+1, value=headers[col‎])
+                
+                if col == 0:
+                	cell_left.fill = number_fill
+                else:
+                    cell_left.fill = header_fill
+                    
+                # RIGHT SIDE (F-J)
+                cell_right = ws.cell(row=3, column=col+6, value=headers[col])
+                
+                if col == 0:
+                    cell_right.fill = number_fill
+                else:
+                    cell_right.fill = header_fill
 
             for i in range(37):
                 left = page_start + i
@@ -117,10 +136,11 @@ def build_excel(bores):
                     if rod in bore["lc"]:
                         label += "  " + bore["lc"][rod]
 
-                    ws.cell(row=row_excel, column=1, value=label)
-                    ws.cell(row=row_excel, column=2, value=eop.get(rod,""))
-                    ws.cell(row=row_excel, column=3, value=ft)
-                    ws.cell(row=row_excel, column=4, value=inch)
+                	ws.cell(row=row_excel, column=1, value=rod).fill = number_fill
+                	ws.cell(row=row_excel, column=2, value=bore‎["lc"‎].get(rod,""))
+                	ws.cell(row=row_excel, column=3, value=eop.get(rod,""))
+                	ws.cell(row=row_excel, column=4, value=ft)
+                    ws.cell(row=row_excel, column=5, value=inch)
 
                 if right < rods:
                     rod = right+1
@@ -129,10 +149,11 @@ def build_excel(bores):
                     if rod in bore["lc"]:
                         label += "  " + bore["lc"][rod]
 
-                    ws.cell(row=row_excel, column=5, value=label)
-                    ws.cell(row=row_excel, column=6, value=eop.get(rod,""))
-                    ws.cell(row=row_excel, column=7, value=ft)
-                    ws.cell(row=row_excel, column=8, value=inch)
+					ws.cell(row=row_excel, column=6, value=rod).fill = number_fill
+                    ws.cell(row=row_excel, column=7, value=bore‎["lc"].get(rod,""))
+                    ws.cell(row=row_excel, column=8, value=eop.get(rod,""))
+                    ws.cell(row=row_excel, column=9, value=ft)
+                    ws.cell(row=row_excel, column=10, value=inch)
 
             if page_start + 74 >= rods:
                 ws.cell(row=42, column=5, value=f"Total: {bore['footage']}'")
