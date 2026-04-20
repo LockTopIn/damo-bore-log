@@ -85,7 +85,7 @@ def build_excel(bores):
 
     header_fill = PatternFill(start_color="FFD966", end_color="FFD966", fill_type="solid")
     title_fill = PatternFill(start_color="92D050", end_color="92D050", fill_type="solid")
-	number_fill = PatternFill(start_color="ADD8E6", end_color="ADD8E6",fill_type="solid")
+    number_fill = PatternFill(start_color="ADD8E6", end_color="ADD8E6",fill_type="solid")
     
     for bore in bores:
         rods = rods_from_footage(bore["footage"])
