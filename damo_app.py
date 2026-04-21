@@ -3,8 +3,7 @@ import streamlit as st
 from datetime import datetime
 import random
 from openpyxl import Workbook
-from openpyxl.styles import Font, PatternFill, Alignment
-from openpyxl.styles import Border, Side
+from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 import re
 
 st.set_page_config(page_title="DAMO Bore Log Tool", layout="wide")
@@ -106,7 +105,7 @@ def build_excel(bores):
     title_fill = PatternFill(start_color="92D050", end_color="92D050", fill_type="solid")
     number_fill = PatternFill(start_color="ADD8E6", end_color="ADD8E6", fill_type="solid")
     thin = Side(style='thin')
-    border =  Border(left=thin, right=thin, top=thin, bottom=thin)
+    box_border = Border(left=thin, right=thin, top=thin, bottom=thin)
 
     for bore in bores:
         rods = rods_from_footage(bore["footage"])
@@ -151,38 +150,42 @@ def build_excel(bores):
                 cell_left.fill = number_fill if col == 0 else header_fill
                 cell_left.font = Font(bold=True)
                 cell_left.alignment = Alignment(horizontal="center")
+                cell_left.border = box_border
 
                 # RIGHT SIDE (F–J)
                 cell_right = ws.cell(row=3, column=col + 6, value=headers[col])
                 cell_right.fill = number_fill if col == 0 else header_fill
                 cell_right.font = Font(bold=True)
                 cell_right.alignment = Alignment(horizontal="center")
+                cell_right.border = box_border
 
-            for i in range(37):
+            for i in range(37):          # <- loop starts here
                 left = page_start + i
                 right = page_start + i + 37
                 row_excel = 4 + i
 
                 # LEFT SIDE
-            for co inrange(1, 6):
-                ws.cell(row=row_excel, column=col).border = border
+                for col in range(1, 11):
+                    ws.cell(row=row_excel, column=col).border = box_border
+                    
                 if left < rods:
                     rod = left + 1
                     ft, inch = inches_to_ft_in(depths[left])
-                    # FIX: consistent 4-space indentation, no tabs
-                    ws.cell(row=row_excel, column=1, value=rod).fill = number_fill
+                    c = ws.cell(row=row_excel, column=1, value=rod)
+                    c.fill = number_fill
+                    c.border = box_border
                     ws.cell(row=row_excel, column=2, value=bore["lc"].get(rod, ""))
                     ws.cell(row=row_excel, column=3, value=eop.get(rod, ""))
                     ws.cell(row=row_excel, column=4, value=ft)
                     ws.cell(row=row_excel, column=5, value=inch)
 
                 # RIGHT SIDE
-            for col in range(6, 11):
-                ws.cell(row=row_excel, column=col).border = border
                 if right < rods:
                     rod = right + 1
                     ft, inch = inches_to_ft_in(depths[right])
-                    ws.cell(row=row_excel, column=6, value=rod).fill = number_fill
+                    c = ws.cell(row=row_excel, column=6, value=rod)
+                    c.fill = number_fill
+                    c.border = box_border
                     ws.cell(row=row_excel, column=7, value=bore["lc"].get(rod, ""))
                     ws.cell(row=row_excel, column=8, value=eop.get(rod, ""))
                     ws.cell(row=row_excel, column=9, value=ft)
