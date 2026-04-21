@@ -4,6 +4,7 @@ from datetime import datetime
 import random
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment
+from openpyxl.styles import Border, Side
 import re
 
 st.set_page_config(page_title="DAMO Bore Log Tool", layout="wide")
@@ -104,6 +105,8 @@ def build_excel(bores):
     header_fill = PatternFill(start_color="FFD966", end_color="FFD966", fill_type="solid")
     title_fill = PatternFill(start_color="92D050", end_color="92D050", fill_type="solid")
     number_fill = PatternFill(start_color="ADD8E6", end_color="ADD8E6", fill_type="solid")
+    thin = Side(style='thin')
+    border =  Border(left=thin, right=thin, top=thin, bottom=thin)
 
     for bore in bores:
         rods = rods_from_footage(bore["footage"])
@@ -161,6 +164,8 @@ def build_excel(bores):
                 row_excel = 4 + i
 
                 # LEFT SIDE
+            for co inrange(1, 6):
+                ws.cell(row=row_excel, column=col).border = border
                 if left < rods:
                     rod = left + 1
                     ft, inch = inches_to_ft_in(depths[left])
@@ -172,6 +177,8 @@ def build_excel(bores):
                     ws.cell(row=row_excel, column=5, value=inch)
 
                 # RIGHT SIDE
+            for col in range(6, 11):
+                ws.cell(row=row_excel, column=col).border = border
                 if right < rods:
                     rod = right + 1
                     ft, inch = inches_to_ft_in(depths[right])
