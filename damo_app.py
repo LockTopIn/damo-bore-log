@@ -94,8 +94,28 @@ def generate_br_depths(rods, low, high, lc):
 
 
 def generate_pl_depths(rods, flat):
-    return [flat] * rods
+    return[flat] * rods
+    
 
+def validate_depths(depths, bore_name):
+    violations = []
+    last_triple_end = -99  # tracks last 3-in-a-row ended
+
+    for i in range(2, len(depths)):
+        # check if 3 in a row
+        if depths[i] == depths[i-1] == depths[i-2]:
+            # checks if a 4th in a row (violation)
+            if i >=3 and depths[i] == depths[i-3]:
+                violations.append(f"Rod {i+1}: 4+ repeats of {depths[i]} inches")
+            # checks cooldown - was there another triple too recently?
+            if i - last_triple_end < 6:
+                violations.append(f"ROD {i+1}: triple repeat too soon after last one")
+            last_triple_end = i
+
+    if violations:
+        return f"{bore_name}: ❌ {len(violations)} violation(s) — " + " | ".join(violations)
+    else:
+        return f"{bore_name}: ✅ all rules pass"
 
 def build_excel(bores):
     wb = Workbook()
@@ -112,6 +132,8 @@ def build_excel(bores):
 
         if bore["type"] == "BR":
             depths = generate_br_depths(rods, *bore["depth_range"], bore["lc"])
+            result = validate_depths(depths, bore["name"])
+            st.write(result)
         else:
             depths = generate_pl_depths(rods, bore["depth_flat"])
 
